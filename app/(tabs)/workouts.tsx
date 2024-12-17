@@ -1,9 +1,9 @@
 import { Text, View, StyleSheet } from 'react-native';
 
-export default function MenuScreen() {
+export default function WorkoutsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Menu screen</Text>
+      <Text style={styles.text}>Workouts screen</Text>
     </View>
   );
 }
