@@ -8,7 +8,7 @@ interface WorkoutItemProps {
   title: string;
   onPress: () => void;
   onEdit: () => void;
-};
+}
 
 const WorkoutItem = ({ title, onPress, onEdit }: WorkoutItemProps) => (
   <TouchableOpacity style={styles.workoutItem} onPress={onPress}>
@@ -45,7 +45,7 @@ export default function StartScreen() {
 
       <View style={styles.folderSection}>
         <Text style={styles.folderText}>Folder name</Text>
-        <TouchableOpacity onPress={() => alert('Select folder')}>
+        <TouchableOpacity onPress={() => router.push("/folders")}>
           <Text style={styles.folderButton}>Select another folder</Text>
         </TouchableOpacity>
       </View>
