@@ -1,14 +1,14 @@
 import React from "react";
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { router } from "expo-router";
 
-import Button from '@/components/Button'
-
+import Button from '@/components/Button';
 
 interface WorkoutItemProps {
   title: string;
   onPress: () => void;
   onEdit: () => void;
-}
+};
 
 const WorkoutItem = ({ title, onPress, onEdit }: WorkoutItemProps) => (
   <TouchableOpacity style={styles.workoutItem} onPress={onPress}>
@@ -32,7 +32,15 @@ export default function StartScreen() {
 
       <Button
         label="Freestyle workout"
-        onPress={() => alert('Freestyle workout pressed')}
+        theme='boxed'
+        onPress={() => router.push({
+          pathname: "/workout/[id]",
+          params: { 
+            id: "freestyle",
+            title: 'Freestyle Workout',
+            description: 'Custom workout session'
+          }
+        })}
       />
 
       <View style={styles.folderSection}>
@@ -45,13 +53,25 @@ export default function StartScreen() {
       <ScrollView style={styles.workoutList}>
         <WorkoutItem 
           title="Workout 1"
-          onPress={() => alert('Starting Workout 1')}
+          onPress={() => router.push({
+            pathname: "/workout/[id]",
+            params: { 
+              id: "workout1",
+              title: 'Workout 1',
+              description: 'First workout session'
+            }
+          })}
           onEdit={() => alert('Editing Workout 1')}
         />
         <WorkoutItem 
           title="Workout 2"
           onPress={() => alert('Starting Workout 2')}
           onEdit={() => alert('Editing Workout 2')}
+        />
+        <WorkoutItem
+          title="Workout 3"
+          onPress={() => alert('Starting Workout 3')}
+          onEdit={() => alert('Editing Workout 3')}
         />
       </ScrollView>
     </View>
