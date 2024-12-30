@@ -1,5 +1,7 @@
-import Button from '@/components/Button';
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput } from 'react-native';
+import React from 'react';
+
+import { useWorkouts } from "./context/WorkoutContext"
 
 interface FolderItemProps {
     title: string;
@@ -22,31 +24,82 @@ const FolderItem = ({ title, onPress, onEdit }: FolderItemProps) => (
 );
 
 export default function FolderScreen() {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.header}>Edit folders</Text>
+  const {
+    folders,
+    currentFolder,
+    setCurrentFolder,
+    addFolder,
+    deleteFolder,
+    addWorkout
+  } = useWorkouts();
 
-            <ScrollView style={styles.folderList}>
-              <FolderItem
-                title="Folder 1"
-                onPress={() => alert('Folder 1 pressed')}
-                onEdit={() => alert('Editing Folder 1')}
-              />
-              <FolderItem
-                title="Folder 2"
-                onPress={() => alert('Folder 2 pressed')}
-                onEdit={() => alert('Editing Folder 2')}
-              />
-            </ScrollView>
+  const [isAddFolderModalVisible, setAddFolderModalVisible] = React.useState(false);
+  const [newFolderName, setNewFolderName] = React.useState('');
 
-            <TouchableOpacity
-              style={styles.addFolderButton}
-              onPress={() => alert('Add folder pressed')}
-            >
-              <Text style={styles.addFolderButtonText}>Add new folder</Text>
-            </TouchableOpacity>
+  const handleAddFolder = async () => {
+    if (newFolderName.trim()) {
+      await addFolder(newFolderName);
+      setNewFolderName('');
+      setAddFolderModalVisible(false);
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Edit folders</Text>
+
+      <ScrollView style={styles.folderList}>
+        {folders?.map(folder => (
+            <FolderItem
+            key={folder.id}
+            title={folder.name}
+            onPress={() => alert("PRESS")}
+            onEdit={() => alert("EDIT")}
+          />
+        ))}
+      </ScrollView>
+
+      <TouchableOpacity
+        style={styles.addFolderButton}
+        onPress={() => setAddFolderModalVisible(true)}
+      >
+        <Text style={styles.addFolderButtonText}>Add new folder</Text>
+      </TouchableOpacity>
+
+      <Modal
+        visible={isAddFolderModalVisible}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add New Folder</Text>
+            <TextInput
+              style={styles.input}
+              value={newFolderName}
+              onChangeText={setNewFolderName}
+              placeholder="Folder name"
+              placeholderTextColor="#888"
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalButton} 
+                onPress={() => setAddFolderModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonPrimary]} 
+                onPress={handleAddFolder}
+              >
+                <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-    )
+      </Modal>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -100,5 +153,51 @@ const styles = StyleSheet.create({
     addFolderButtonText: {
       color: '#fff',
       fontSize: 16,
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+      backgroundColor: '#333',
+      padding: 24,
+      borderRadius: 8,
+      width: '80%',
+    },
+    modalTitle: {
+      color: '#fff',
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 16,
+    },
+    input: {
+      backgroundColor: '#444',
+      color: '#fff',
+      padding: 12,
+      borderRadius: 4,
+      marginBottom: 16,
+    },
+    modalButtons: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      gap: 16,
+    },
+    modalButton: {
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      borderRadius: 4,
+      backgroundColor: '#444',
+    },
+    modalButtonPrimary: {
+      backgroundColor: '#ffd33d',
+    },
+    modalButtonText: {
+      color: '#fff',
+      fontSize: 16,
+    },
+    modalButtonTextPrimary: {
+      color: '#25292e',
     },
 });

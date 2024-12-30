@@ -115,33 +115,34 @@ export default function StartScreen() {
         transparent={true}
         animationType="slide"
       >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Add New Folder</Text>
-          <TextInput
-            style={styles.input}
-            value={newFolderName}
-            onChangeText={setNewFolderName}
-            placeholder="Folder name"
-            placeholderTextColor="#888"
-          />
-          <View style={styles.modalButtons}>
-            <TouchableOpacity 
-              style={styles.modalButton} 
-              onPress={() => setAddFolderModalVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.modalButton, styles.modalButtonPrimary]} 
-              onPress={handleAddFolder}
-            >
-              <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Add</Text>
-            </TouchableOpacity>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add New Folder</Text>
+            <TextInput
+              style={styles.input}
+              value={newFolderName}
+              onChangeText={setNewFolderName}
+              placeholder="Folder name"
+              placeholderTextColor="#888"
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalButton} 
+                onPress={() => setAddFolderModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonPrimary]} 
+                onPress={handleAddFolder}
+              >
+                <Text style={[styles.modalButtonText, styles.modalButtonTextPrimary]}>Add</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+
     </View>
   );
 }
