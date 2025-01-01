@@ -89,7 +89,7 @@ export default function StartScreen() {
               })}
               style={styles.folderButton}
             >
-              <Text style={styles.folderButtonText}>Change Folder</Text>
+              <Text style={styles.folderButtonText}>Edit/Change Folder</Text>
             </TouchableOpacity>
           )}
         </View>

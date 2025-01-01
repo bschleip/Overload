@@ -2,25 +2,90 @@ import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput 
 import React from 'react';
 
 import { useWorkouts } from "./context/WorkoutContext"
+import { UserWorkouts, WorkoutFolder, Workout, Exercise } from './types/workout';
+import { router } from 'expo-router';
 
 interface FolderItemProps {
-    title: string;
-    onPress: () => void;
-    onEdit: () => void;
+  id: string;
+  title: string;
+  workouts: Workout[];
+  isExpanded: boolean;
+  onPress: () => void;
+  onEdit: () => void;
+  onWorkoutPress: (workoutId: string) => void;
 }
 
-const FolderItem = ({ title, onPress, onEdit }: FolderItemProps) => (
-    <TouchableOpacity style={styles.folderItem} onPress={onPress}>
-        <View style={styles.folderHeader}>
-          <Text style={styles.folderTitle}>{title}</Text>
-          <View style={styles.folderActions}>
-            <TouchableOpacity onPress={onEdit}>
-              <Text style={styles.editButton}>Edit</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <Text style={styles.workoutList}>- List of workouts</Text>
-      </TouchableOpacity>
+const FolderItem = ({ 
+  id,
+  title, 
+  workouts, 
+  isExpanded,
+  onPress, 
+  onEdit 
+}: FolderItemProps) => (
+  <View style={styles.folderItem}>
+    <TouchableOpacity 
+      style={styles.folderHeader} 
+      onPress={onPress}
+    >
+      <View style={styles.folderTitleRow}>
+        <Text style={styles.folderTitle}>{title}</Text>
+        <Text style={styles.workoutCount}>
+          {workouts.length} workout{workouts.length !== 1 ? 's' : ''}
+        </Text>
+      </View>
+      <View style={styles.folderActions}>
+        <TouchableOpacity onPress={onEdit}>
+          <Text style={styles.editButton}>Edit</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+
+    <View style={styles.workoutList}>
+      {workouts.length > 0 ? (
+        workouts.map(workout => (
+          <WorkoutItem 
+            workout={workout} 
+            isParentExpanded={isExpanded} 
+          />
+        ))
+      ) : (
+        <Text style={styles.emptyWorkouts}>No workouts in this folder</Text>
+      )}
+    </View>
+
+  </View>
+);
+
+const WorkoutItem = ({ workout, isParentExpanded }: { 
+  workout: Workout; 
+  isParentExpanded: boolean 
+}) => (
+  <View style={styles.workoutContainer}>
+    <TouchableOpacity 
+      style={styles.workoutHeader} 
+      onPress={() => router.push({
+        pathname: "./(tabs)/start",
+        params: { workoutId: workout.id }
+      })}
+    >
+      <Text style={styles.workoutName}>{workout.name}</Text>
+      <Text style={styles.workoutMeta}>
+        {workout.exercises.length} exercises
+      </Text>
+    </TouchableOpacity>
+
+    {isParentExpanded && (
+      <View style={styles.exerciseList}>
+        {workout.exercises.map((exercise) => (
+          <Text key={exercise.id} style={styles.exerciseItem}>
+            • {exercise.name} - {exercise.sets}x{exercise.reps}
+            {exercise.weight ? ` @ ${exercise.weight}lb` : ''}
+          </Text>
+        ))}
+      </View>
+    )}
+  </View>
 );
 
 export default function FolderScreen() {
@@ -35,6 +100,7 @@ export default function FolderScreen() {
 
   const [isAddFolderModalVisible, setAddFolderModalVisible] = React.useState(false);
   const [newFolderName, setNewFolderName] = React.useState('');
+  const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(new Set());
 
   const handleAddFolder = async () => {
     if (newFolderName.trim()) {
@@ -42,7 +108,19 @@ export default function FolderScreen() {
       setNewFolderName('');
       setAddFolderModalVisible(false);
     }
-  }
+  };
+
+  const toggleFolder = (folderId: string) => {
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(folderId)) {
+        newSet.delete(folderId);
+      } else {
+        newSet.add(folderId);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -50,11 +128,15 @@ export default function FolderScreen() {
 
       <ScrollView style={styles.folderList}>
         {folders?.map(folder => (
-            <FolderItem
+          <FolderItem
             key={folder.id}
+            id={folder.id}
             title={folder.name}
+            workouts={folder.workouts}
+            isExpanded={expandedFolders.has(folder.id)}
             onPress={() => alert("PRESS")}
             onEdit={() => alert("EDIT")}
+            onWorkoutPress={(workoutId) => alert("WORKOUT PRESS"+workoutId)}
           />
         ))}
       </ScrollView>
@@ -122,6 +204,7 @@ const styles = StyleSheet.create({
       padding: 16,
       borderRadius: 8,
       marginBottom: 8,
+      minHeight: 80,
     },
     folderHeader: {
       flexDirection: 'row',
@@ -142,7 +225,17 @@ const styles = StyleSheet.create({
       color: '#ffd33d',
     },
     workoutList: {
-      color: '#888'
+      marginTop: 8,
+    },
+    workoutItem: {
+      color: '#888',
+      fontSize: 14,
+      marginVertical: 2,
+    },
+    emptyWorkouts: {
+      color: '#666',
+      fontSize: 14,
+      fontStyle: 'italic',
     },
     addFolderButton: {
       backgroundColor: "#333",
@@ -199,5 +292,43 @@ const styles = StyleSheet.create({
     },
     modalButtonTextPrimary: {
       color: '#25292e',
+    },
+    folderTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    workoutCount: {
+        color: '#888',
+        fontSize: 14,
+    },
+    workoutContainer: {
+        marginVertical: 4,
+    },
+    workoutHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: '#3a3a3a',
+        borderRadius: 6,
+    },
+    workoutName: {
+        color: '#fff',
+        fontSize: 15,
+    },
+    workoutMeta: {
+        color: '#888',
+        fontSize: 13,
+    },
+    exerciseList: {
+        marginLeft: 24,
+        marginTop: 4,
+    },
+    exerciseItem: {
+        color: '#888',
+        fontSize: 13,
+        marginVertical: 2,
     },
 });
